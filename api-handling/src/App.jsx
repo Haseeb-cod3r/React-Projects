@@ -10,11 +10,19 @@ import { appContext } from "./context/appContext";
 
 function App() {
   const [progress, setProgress] = useState(0);
-  const [page, setPage] = useState(1);
   const { isOpen, setIsOpen, isEditMode, setIsEditMode, form, setForm } =
     useContext(appContext);
   const divRef = useRef(null);
 
+  function startSmoothProgress() {
+    setProgress(0);
+
+    let interval = setInterval(() => {
+      setProgress((prev) => (prev < 90 ? prev + 5 : prev));
+    }, 100);
+
+    return interval;
+  }
   const {
     data,
     isLoading,
@@ -22,7 +30,7 @@ function App() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useFetchData(setProgress);
+  } = useFetchData(setProgress, startSmoothProgress);
   const deleteUser = useDeleteUser();
   const editUser = useEditData();
   const addData = useAddData();
@@ -35,7 +43,7 @@ function App() {
           fetchNextPage();
         }
       },
-      { threshold: 1.0 },
+      { threshold: 0 },
     );
     if (divRef.current) {
       observer.observe(divRef.current);
@@ -144,7 +152,7 @@ function App() {
                         Edit
                       </button>
                       <button
-                        onClick={() => deleteUser.mutate({ id, page })}
+                        onClick={() => deleteUser.mutate({ id })}
                         className="px-4 py-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200  cursor-pointer transition"
                       >
                         Delete
@@ -220,7 +228,6 @@ function App() {
                   setForm,
                   setIsOpen,
                   form,
-                  page,
                 });
               }}
               type="button"
@@ -230,7 +237,7 @@ function App() {
             </button>
           ) : (
             <button
-              onClick={() => addData.mutate({ setForm, setIsOpen, form, page })}
+              onClick={() => addData.mutate({ setForm, setIsOpen, form })}
               type="button"
               className="w-full cursor-pointer bg-sky-500 text-white py-2 rounded-full"
             >

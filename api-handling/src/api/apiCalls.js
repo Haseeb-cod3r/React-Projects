@@ -5,16 +5,20 @@ import {
 } from "@tanstack/react-query";
 import axiosInstance from "./axiosConfig";
 
-export function useFetchData(setProgress) {
+export function useFetchData(setProgress, startSmoothProgress) {
   return useInfiniteQuery({
     queryKey: ["users"],
 
     queryFn: async ({ pageParam = 1 }) => {
+      const timer = startSmoothProgress();
       try {
         const res = await axiosInstance.get("user", {
-          onDownloadProgress: (e) => {
+          onDownloadProgress: async (e) => {
             if (e.total) {
               const prog = Math.round((e.loaded * 100) / e.total);
+              setTimeout(() => {
+                clearInterval(timer);
+              }, 2000);
               setProgress(prog);
             }
           },
@@ -23,6 +27,9 @@ export function useFetchData(setProgress) {
             limit: 15,
           },
         });
+
+        await new Promise((resolve) => setTimeout(resolve, 600));
+
         return res.data;
       } catch (err) {
         console.log(err);
