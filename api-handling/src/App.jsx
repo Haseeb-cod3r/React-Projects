@@ -10,6 +10,7 @@ import { appContext } from "./context/appContext";
 
 function App() {
   const [progress, setProgress] = useState(0);
+  const [errors, setErrors] = useState(false);
   const { isOpen, setIsOpen, isEditMode, setIsEditMode, form, setForm } =
     useContext(appContext);
   const divRef = useRef(null);
@@ -55,19 +56,27 @@ function App() {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
-  // for pagination
+  function validateForm() {
+    let newErrors = {};
 
-  //   function handlePages(isIncrement) {
-  //     if (isIncrement) {
-  //       setPage((prev) => {
-  //         return prev < 10 ? prev + 1 : prev;
-  //       });
-  //     } else {
-  //       setPage((prev) => {
-  //         return prev > 1 ? prev - 1 : prev;
-  //       });
-  //     }
-  //   }
+    if (!form.name.trim()) {
+      newErrors.name = "Name is required";
+    }
+
+    if (!form.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(form.email)) {
+      newErrors.email = "Enter a valid email";
+    }
+
+    if (!form.Role.trim()) {
+      newErrors.Role = "Role is required";
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0; // true = valid form
+  }
 
   if (isLoading && !data) {
     return (
@@ -202,15 +211,18 @@ function App() {
             placeholder="Name"
             className="w-full border px-4 py-2 rounded-lg"
           />
-
+          {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
           <input
             value={form.email}
+            type="email"
             onChange={handleOnChange}
             name="email"
             placeholder="Email"
             className="w-full border px-4 py-2 rounded-lg"
           />
-
+          {errors.email && (
+            <p className="text-red-500 text-sm">{errors.email}</p>
+          )}
           <input
             value={form.Role}
             onChange={handleOnChange}
@@ -218,17 +230,19 @@ function App() {
             placeholder="Role"
             className="w-full border px-4 py-2 rounded-lg"
           />
-
+          {errors.Role && <p className="text-red-500 text-sm">{errors.Role}</p>}
           {isEditMode.mode ? (
             <button
               onClick={() => {
-                editUser.mutate({
-                  id: isEditMode.id,
-                  setIsEditMode,
-                  setForm,
-                  setIsOpen,
-                  form,
-                });
+                if (validateForm()) {
+                  editUser.mutate({
+                    id: isEditMode.id,
+                    setIsEditMode,
+                    setForm,
+                    setIsOpen,
+                    form,
+                  });
+                }
               }}
               type="button"
               className="w-full cursor-pointer bg-yellow-500 text-white py-2 rounded-full"
@@ -237,7 +251,11 @@ function App() {
             </button>
           ) : (
             <button
-              onClick={() => addData.mutate({ setForm, setIsOpen, form })}
+              onClick={() => {
+                if (validateForm()) {
+                  addData.mutate({ setForm, setIsOpen, form });
+                }
+              }}
               type="button"
               className="w-full cursor-pointer bg-sky-500 text-white py-2 rounded-full"
             >
