@@ -75,7 +75,7 @@ function App() {
 
     setErrors(newErrors);
 
-    return Object.keys(newErrors).length === 0; // true = valid form
+    return Object.keys(newErrors).length === 0; 
   }
 
   if (isLoading && !data) {
@@ -223,13 +223,19 @@ function App() {
           {errors.email && (
             <p className="text-red-500 text-sm">{errors.email}</p>
           )}
-          <input
+          <select
             value={form.Role}
             onChange={handleOnChange}
             name="Role"
-            placeholder="Role"
-            className="w-full border px-4 py-2 rounded-lg"
-          />
+            className="w-full border px-4 py-2 rounded-lg bg-white focus:ring-2  outline-none"
+          >
+            <option value="">Select Role</option>
+            <option value="Admin">Admin</option>
+            <option value="User">User</option>
+            <option value="Manager">Manager</option>
+            <option value="Editor">Editor</option>
+          </select>
+
           {errors.Role && <p className="text-red-500 text-sm">{errors.Role}</p>}
           {isEditMode.mode ? (
             <button
