@@ -1,4 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react";
+import { Toaster } from "react-hot-toast";
+
 import Modal from "./modal";
 import {
   useDeleteUser,
@@ -75,7 +77,7 @@ function App() {
 
     setErrors(newErrors);
 
-    return Object.keys(newErrors).length === 0; 
+    return Object.keys(newErrors).length === 0;
   }
 
   if (isLoading && !data) {
@@ -182,14 +184,12 @@ function App() {
           </div>
         )}
 
-        {!hasNextPage && (
-          <div className="flex justify-center my-4">
-            <h2
-              disabled
-              className="px-6 py-2 bg-gray-300 text-gray-700 rounded-full mr-5"
-            >
+        {!hasNextPage && data?.pages?.length > 1 && (
+          <div className="flex justify-center my-4 items-center gap-4">
+            <h2 className="px-6 py-2 bg-gray-300 text-gray-700 rounded-full">
               No more data
             </h2>
+
             <button
               onClick={() => setIsOpen(true)}
               className="bg-sky-500 text-white px-5 py-2 rounded-full cursor-pointer font-medium hover:bg-sky-600 transition"
@@ -227,13 +227,23 @@ function App() {
             value={form.Role}
             onChange={handleOnChange}
             name="Role"
-            className="w-full border px-4 py-2 rounded-lg bg-white focus:ring-2  outline-none"
+            className="w-full cursor-pointer border px-4 py-2 rounded-lg bg-white focus:ring-1  outline-none"
           >
-            <option value="">Select Role</option>
-            <option value="Admin">Admin</option>
-            <option value="User">User</option>
-            <option value="Manager">Manager</option>
-            <option value="Editor">Editor</option>
+            <option className="cursor-pointer" value="">
+              Select Role
+            </option>
+            <option className="cursor-pointer" value="Admin">
+              Admin
+            </option>
+            <option className="cursor-pointer" value="User">
+              User
+            </option>
+            <option className="cursor-pointer" value="Manager">
+              Manager
+            </option>
+            <option className="cursor-pointer" value="Editor">
+              Editor
+            </option>
           </select>
 
           {errors.Role && <p className="text-red-500 text-sm">{errors.Role}</p>}
@@ -270,6 +280,7 @@ function App() {
           )}
         </form>
       </Modal>
+      <Toaster position="top-center" />
     </div>
   );
 }

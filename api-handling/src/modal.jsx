@@ -11,7 +11,7 @@ function Modal({ isOpen, onClose, children }) {
         
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-500 hover:text-black"
+          className="absolute top-3 right-3 text-gray-500 hover:text-black cursor-pointer"
         >
           ✕
         </button>

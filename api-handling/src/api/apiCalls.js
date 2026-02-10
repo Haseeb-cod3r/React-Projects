@@ -1,3 +1,5 @@
+import toast from "react-hot-toast";
+
 import {
   useInfiniteQuery,
   useMutation,
@@ -61,6 +63,7 @@ export function useAddData() {
       return prev;
     },
     onSuccess: (_, variables) => {
+      toast.success("User added successfully ✅");
       variables.setForm({
         name: "",
         email: "",
@@ -70,6 +73,7 @@ export function useAddData() {
     },
 
     onError: (err, variables, context) => {
+      toast.error("Failed to add user ❌");
       console.log("edit failed:", err);
       variables.setIsOpen(false);
       variables.setForm({
@@ -104,7 +108,11 @@ export function useDeleteUser() {
       });
       return prev;
     },
+    onSuccess: () => {
+      toast.success("User deleted successfully 🗑️");
+    },
     onError: (err, _, context) => {
+      toast.error("Delete failed ❌");
       console.log("Delete failed:", err);
       queryClient.setQueryData(["users"], context.prev);
     },
@@ -137,6 +145,7 @@ export function useEditData() {
     },
 
     onSuccess: (_, variables) => {
+      toast.success("User updated successfully ✏️");
       variables.setForm({
         name: "",
         email: "",
@@ -150,6 +159,7 @@ export function useEditData() {
     },
 
     onError: (err, variables, context) => {
+      toast.error("Update failed ❌");
       console.log("edit failed:", err);
       variables.setIsOpen(false);
       variables.setForm({
