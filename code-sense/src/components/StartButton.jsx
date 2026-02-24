@@ -11,15 +11,15 @@ export default function StartButton() {
     framework,
     feature,
     userCode,
-    setCode,
-    setSummary,
-    setFixed,
-    setSuggestion,
+    setCorrectedCode,
+    setFeedback,
     setLoading,
+    setStatus,
+    setMessage,
   } = useContext(appContext);
 
   function validation() {
-    if (userCode === "") {
+    if (!userCode.trim()) {
       return toast.error("Source code missing.", {
         style: {
           background: "var(--color-primary)",
@@ -27,6 +27,7 @@ export default function StartButton() {
         },
       });
     }
+
     if (lang === "Language") {
       return toast.error("Please select the Language", {
         style: {
@@ -35,6 +36,7 @@ export default function StartButton() {
         },
       });
     }
+
     if (framework === "Framework") {
       return toast.error("Please select the Framework", {
         style: {
@@ -43,6 +45,7 @@ export default function StartButton() {
         },
       });
     }
+
     if (feature === "Feature") {
       return toast.error("Please select the Feature", {
         style: {
@@ -56,61 +59,81 @@ export default function StartButton() {
   }
 
   const { mutate, isPending } = useMutation({
-    mutationFn: () => {
-      return GroqServices(userCode, lang, framework, feature);
-    },
+    mutationFn: () => GroqServices(userCode, lang, framework, feature),
 
     onMutate: () => {
       setLoading(true);
+      setFeedback(null);
+      setStatus("");
+      setMessage("");
+      setCorrectedCode("");
     },
+
     onSuccess: (response) => {
       setLoading(false);
-      setCode(response.code);
-      setSummary(response.summary);
-      setFixed(response.fixed);
-      setSuggestion(response.suggestion);
+
+      console.log(response);
+      setStatus(response.status);
+
+      if (response.status === "mismatch") {
+        setMessage(response.message);
+        return;
+      }
+
+      if (response.status === "success") {
+        setCorrectedCode(response.correctedCode || "");
+        setFeedback(response.feedback || null);
+      }
+
+      if (response.error) {
+        toast.error("Something went wrong please try again later", {
+          style: {
+            background: "var(--color-primary)",
+            color: "white",
+          },
+        });
+      }
     },
+
     onError: (err) => {
-      console.log(err);
+      console.error(err);
       setLoading(false);
-      toast.error("Some thing went wrong please try again later", {
-        style: {
-          background: "var(--color-primary)",
-          color: "white",
-        },
-      });
+
+      toast.error("Something went wrong. Please try again.");
     },
   });
 
   return (
     <>
       <button
-        onClick={() => validation()}
+        onClick={validation}
         className={`
-      w-full
-      max-w-[600px]
-        bg-[var(--color-primary)]
-        text-[var(--color-primary-foreground)]
-        font-semibold
-        
-        py-3
-        rounded-full
-        mt-4
-        border
-        border-[var(--color-border)]
-        hover:opacity-80
-        active:opacity-100
-        ${isPending ? "cursor-not-allowed" : "cursor-pointer"}
-      `}
+          w-full
+          max-w-[600px]
+          bg-[var(--color-primary)]
+          text-[var(--color-primary-foreground)]
+          font-semibold
+          py-3
+          rounded-full
+          mt-4
+          border
+          border-[var(--color-border)]
+          hover:opacity-80
+          active:opacity-100
+          ${isPending ? "cursor-not-allowed" : "cursor-pointer"}
+        `}
+        disabled={isPending}
       >
         {isPending ? (
           <span className="flex items-center justify-center gap-2">
-            Analyzing... <Loader2 size={20} className="animate-spin " />
+            Analyzing...
+            <Loader2 size={20} className="animate-spin" />
           </span>
         ) : (
           "Start Analyze"
         )}
       </button>
+
       <Toaster position="top-center" />
     </>
   );

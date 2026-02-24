@@ -3,13 +3,8 @@ import { Loader2 } from "lucide-react";
 import { useContext } from "react";
 
 export default function AIFeedback() {
-  const { summary, fixed, suggestion, loading } = useContext(appContext);
+  const { loading, feedback, status, message } = useContext(appContext);
 
-  const sections = [
-    { title: "Summary", content: summary, color: "border-blue-500" },
-    { title: "Fixed", content: fixed, color: "border-green-500" },
-    { title: "Suggestions", content: suggestion, color: "border-purple-500" },
-  ];
   return (
     <div
       className="
@@ -47,25 +42,69 @@ export default function AIFeedback() {
               size={40}
               className="animate-spin text-[var(--color-primary)]"
             />
-          ) : summary && fixed && suggestion ? (
-            <div className="flex flex-col gap-6 w-full max-w-[800px] mt-8 mx-auto">
-              {sections.map((section, index) => (
-                <div key={index} className="group">
-                  {/* Header with a clean line */}
+          ) : status === "mismatch" ? (
+            <span className="text-red-500 font-medium">{message}</span>
+          ) : feedback ? (
+            <div className="flex flex-col gap-6 w-full max-w-[800px] mt-8">
+              {feedback.overview && (
+                <div className="group">
                   <div className="flex items-center gap-4 mb-3">
                     <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[var(--color-primary)] opacity-80">
-                      {section.title}
+                      Overview
                     </h3>
                   </div>
-
-                  {/* Content */}
                   <div className="pl-2 transition-all duration-300">
                     <p className="text-[var(--color-foreground)] text-sm leading-relaxed whitespace-pre-wrap opacity-90 font-medium">
-                      {section.content || "No data available."}
+                      {feedback.overview}
                     </p>
                   </div>
                 </div>
-              ))}
+              )}
+
+              {feedback.issuesFound?.length > 0 && (
+                <div className="group">
+                  <div className="flex items-center gap-4 mb-3">
+                    <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[var(--color-primary)] opacity-80">
+                      Issues Found
+                    </h3>
+                  </div>
+                  <div className="pl-2 transition-all duration-300">
+                    <p className="text-[var(--color-foreground)] text-sm leading-relaxed whitespace-pre-wrap opacity-90 font-medium">
+                      {feedback.issuesFound.join("\n• ")}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {feedback.improvements?.length > 0 && (
+                <div className="group">
+                  <div className="flex items-center gap-4 mb-3">
+                    <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[var(--color-primary)] opacity-80">
+                      Improvements
+                    </h3>
+                  </div>
+                  <div className="pl-2 transition-all duration-300">
+                    <p className="text-[var(--color-foreground)] text-sm leading-relaxed whitespace-pre-wrap opacity-90 font-medium">
+                      {feedback.improvements.join("\n• ")}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {feedback.seniorAdvice && (
+                <div className="group">
+                  <div className="flex items-center gap-4 mb-3">
+                    <h3 className="text-xs font-black uppercase tracking-[0.2em] text-[var(--color-primary)] opacity-80">
+                      Senior Advice
+                    </h3>
+                  </div>
+                  <div className="pl-2 transition-all duration-300">
+                    <p className="text-[var(--color-foreground)] text-sm leading-relaxed whitespace-pre-wrap opacity-90 font-medium">
+                      {feedback.seniorAdvice}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <span className="text-[var(--color-muted-foreground)]">

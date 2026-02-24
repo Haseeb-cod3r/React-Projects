@@ -5,32 +5,26 @@ const groq = new Groq({
   dangerouslyAllowBrowser: true,
 });
 
+/**
+ * Extract JSON safely from AI response
+ */
 export const splitResponse = (fullText) => {
-  const codeRegex = /```[\s\S]*?\n([\s\S]*?)\n```/g;
-  const summaryRegex =
-    /^[#\s]*Summary[#\s]*\n([\s\S]*?)(?=[#\s]*Fixed|[#\s]*Suggestions|$)/im;
-  const fixedRegex = /^[#\s]*Fixed[#\s]*\n([\s\S]*?)(?=[#\s]*Suggestions|$)/im;
-  const suggestionRegex = /^[#\s]*Suggestions[#\s]*\n([\s\S]*?)$/im;
-
-  let matchCode;
-  let codeBlocks = [];
-
-  const summaryMatch = fullText.match(summaryRegex);
-  const fixedMatch = fullText.match(fixedRegex);
-  const suggestionMatch = fullText.match(suggestionRegex);
-
-  while ((matchCode = codeRegex.exec(fullText)) !== null) {
-    codeBlocks.push(matchCode[1]);
+  try {
+      console.log(fullText);
+    const jsonMatch = fullText.match(/\{[\s\S]*\}/);
+    
+    if (!jsonMatch) {
+      return {
+        error: "Invalid AI response format.",
+      };
+    }
+console.log(JSON.parse(jsonMatch[0]));
+    return JSON.parse(jsonMatch[0]);
+  } catch (error) {
+    return {
+      error: true,
+    };
   }
-
-  return {
-    code: codeBlocks.join("\n\n"),
-    summary: summaryMatch ? summaryMatch[1].trim() : "No summary provided.",
-    fixed: fixedMatch ? fixedMatch[1].trim() : "No fixes identified.",
-    suggestion: suggestionMatch
-      ? suggestionMatch[1].trim()
-      : "No extra suggestions.",
-  };
 };
 
 export async function GroqServices(userCode, lang, framework, feature) {
@@ -39,34 +33,79 @@ export async function GroqServices(userCode, lang, framework, feature) {
       {
         role: "system",
         content: `
-          # ROLE
-          You are a Senior Code Architect. You are reviewing code specifically for:
-          - Language: ${lang}
-          - Framework: ${framework}
-          - Requested Action: ${feature}
+You are CodeSense AI — a Senior Software Architect.
 
-          # STRICT RULES
-          1. VALIDATION: First, check if the provided code is actually ${lang} and uses ${framework}. 
-             - If it does NOT match, ignore all other instructions and say exactly: "This is not React code. Please provide code matching your selection." 
-          2. DEBUGGING MODE: If the feature is "Debugging":
-             - Only fix actual bugs. 
-             - If no bugs exist, say: "No bugs found. The code is logically sound. However, I have provided some optimizations below."
-          3. FEATURE FOCUS: Tailor all feedback specifically to the ${feature} request.
+You MUST follow these rules strictly:
 
-         # OUTPUT STRUCTURE
-          [Provide the full corrected code in ONE markdown block using triple backticks with code there has to be no heading and Provide 3  paragraphs with these headings [Summery,Fixed,Suggestions] each paragraph length should be 4 lines]
+------------------------------------------------
+1️⃣ LANGUAGE & FRAMEWORK VALIDATION
+------------------------------------------------
+- Check if the provided code matches:
+  Language: ${lang}
+  Framework: ${framework}
 
-          ###FEEDBACK_START###
-           
-          ###Summary###
-          - A summary of code that is provided and what was the problem in that code.
+- If NOT matching, return ONLY this JSON:
+{
+  "status": "mismatch",
+  "message": "The provided code does not match the selected ${lang} / ${framework}. Please correct your selection."
+}
 
-          ###Fixed###
-          - Whats the fix is what are the changes you have done to make the code good.
+Stop immediately if mismatch.
 
-          ###Suggestions###
-          - Specific senior-level suggestions.
-        `,
+------------------------------------------------
+2️⃣ FEATURE MODE
+------------------------------------------------
+Feature selected: ${feature}
+
+Respond differently depending on feature:
+
+- If Debug:
+   • Identify real bugs only
+   • Fix them
+   • If no bugs:
+     return:
+     {
+       "status": "success",
+       "message": "No bugs found. The code is logically correct.",
+       "improvements": []
+     }
+
+- If Optimize:
+   • Improve performance
+   • Improve memory usage
+   • Improve structure
+   • Explain optimizations clearly
+
+- If Review:
+   • Analyze architecture
+   • Code quality
+   • Best practices
+   • Security issues
+   • Scalability
+
+------------------------------------------------
+3️⃣ RESPONSE FORMAT (STRICT)
+------------------------------------------------
+
+Always return ONLY valid JSON.
+No markdown.
+No headings.
+No explanation outside JSON.
+
+Success format:
+
+{
+  "status": "success",
+  "correctedCode": "FULL corrected code here as string",
+  "feedback": {
+      "overview": "Natural explanation like ChatGPT",
+      "issuesFound": ["Issue 1", "Issue 2"],
+      "improvements": ["Improvement 1", "Improvement 2"],
+      "seniorAdvice": "High-level architectural advice"
+  }
+}
+
+`,
       },
       {
         role: "user",
@@ -77,15 +116,9 @@ export async function GroqServices(userCode, lang, framework, feature) {
     temperature: 0.2,
   });
 
-  const { code, summary, fixed, suggestion } = splitResponse(
-    chatCompletion.choices[0]?.message?.content,
+  const parsed = splitResponse(
+    chatCompletion.choices[0]?.message?.content || "",
   );
 
-  const obj = {
-    code,
-    summary,
-    fixed,
-    suggestion,
-  };
-  return obj;
+  return parsed;
 }

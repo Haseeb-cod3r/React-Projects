@@ -3,12 +3,12 @@ import { Copy, Check, Loader2 } from "lucide-react";
 import { useContext, useState } from "react";
 
 export default function GeneratedCode() {
-  const { code, loading } = useContext(appContext);
+  const { correctedCode, loading } = useContext(appContext);
   const [copied, setCopied] = useState(false);
 
   async function handleCopy() {
     try {
-      await navigator.clipboard.writeText(code);
+      await navigator.clipboard.writeText(correctedCode);
       setCopied(true);
       setTimeout(() => {
         setCopied(false);
@@ -38,7 +38,7 @@ export default function GeneratedCode() {
         <div className="w-full">
           <h2 className="w-full text-xs uppercase tracking-[0.1em] text-[var(--color-primary)] mb-2 flex justify-between items-center">
             AI Generated Code
-            {code === "" ? (
+            {correctedCode === "" ? (
               ""
             ) : (
               <button
@@ -65,7 +65,7 @@ export default function GeneratedCode() {
               className="animate-spin text-[var(--color-primary)] "
             />
           ) : (
-            code || (
+            correctedCode || (
               <span className="text-[var(--color-muted-foreground)]">
                 Waiting for code generation...
               </span>
