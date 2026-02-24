@@ -45,7 +45,7 @@ export async function GroqServices(userCode, lang, framework, feature) {
           - Framework: ${framework}
           - Requested Action: ${feature}
 
-          # STRICT GUARDRAILS
+          # STRICT RULES
           1. VALIDATION: First, check if the provided code is actually ${lang} and uses ${framework}. 
              - If it does NOT match, ignore all other instructions and say exactly: "This is not React code. Please provide code matching your selection." 
           2. DEBUGGING MODE: If the feature is "Debugging":
