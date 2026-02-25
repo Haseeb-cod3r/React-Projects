@@ -109,6 +109,7 @@ export default function AIFeedback() {
           ) : (
             <span className="text-[var(--color-muted-foreground)]">
               Waiting for analysis...
+              
             </span>
           )}
         </div>
