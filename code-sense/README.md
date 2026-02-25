@@ -2,7 +2,7 @@
 <br/>
 <div align="center">
 <a href="https://github.com/ShaanCoding/ReadME-Generator">
-<img src="https://picsum.photos/400" alt="Logo" width="80" height="80">
+<img src="./public/Screenshot 2026-02-25 144941.png" alt="Logo" width="80" height="80">
 </a>
 <h3 align="center">Code Sense</h3>
 <p align="center">
