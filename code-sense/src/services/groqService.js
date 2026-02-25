@@ -5,9 +5,7 @@ const groq = new Groq({
   dangerouslyAllowBrowser: true,
 });
 
-/**
- * Extract JSON safely from AI response
- */
+
 export const splitResponse = (fullText) => {
   try {
       console.log(fullText);
@@ -44,7 +42,7 @@ You MUST follow these rules strictly:
   Language: ${lang}
   Framework: ${framework}
 
-- If NOT matching, return ONLY this JSON:
+- If ${lang} and ${framework} NOT matching with the provided code, return ONLY this JSON:
 {
   "status": "mismatch",
   "message": "The provided code does not match the selected ${lang} / ${framework}. Please correct your selection."
