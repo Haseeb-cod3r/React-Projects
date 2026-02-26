@@ -4,7 +4,7 @@ import { useContext, useState } from "react";
 export default function Dropdown({ title, options, state }) {
   const [selected, setSelected] = useState(title);
   const [open, setOpen] = useState(false);
-  const { theme, setTheme } = useContext(context);
+  const { setTheme } = useContext(context);
 
   function handleOnClick(state, opt) {
     if (state === "theme") {

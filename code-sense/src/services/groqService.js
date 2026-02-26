@@ -6,23 +6,18 @@ const groq = new Groq({
 });
 
 
-export const splitResponse = (fullText) => {
-  try {
-      console.log(fullText);
-    const jsonMatch = fullText.match(/\{[\s\S]*\}/);
-    
-    if (!jsonMatch) {
-      return {
-        error: "Invalid AI response format.",
-      };
-    }
-console.log(JSON.parse(jsonMatch[0]));
-    return JSON.parse(jsonMatch[0]);
-  } catch (error) {
-    return {
-      error: true,
-    };
+export const validationStructure = (obj) => {
+ if (!["success", "mismatch"].includes(obj.status)) return false;
+  if (obj.status === "success") {
+    if (!obj.correctedCode) return false;
+    if (!obj.feedback) return false;
+    if (!obj.feedback.overview) return false;
   }
+  if(obj.status === "mismatch"){
+      if(!obj.message) return false
+  }
+
+  return true;
 };
 
 export async function GroqServices(userCode, lang, framework, feature) {
@@ -36,7 +31,7 @@ You are CodeSense AI — a Senior Software Architect.
 You MUST follow these rules strictly:
 
 ------------------------------------------------
-1️⃣ LANGUAGE & FRAMEWORK VALIDATION
+1 LANGUAGE & FRAMEWORK VALIDATION
 ------------------------------------------------
 - Check if the provided code matches:
   Language: ${lang}
@@ -51,7 +46,7 @@ You MUST follow these rules strictly:
 Stop immediately if mismatch.
 
 ------------------------------------------------
-2️⃣ FEATURE MODE
+2 FEATURE MODE
 ------------------------------------------------
 Feature selected: ${feature}
 
@@ -82,7 +77,7 @@ Respond differently depending on feature:
    • Scalability
 
 ------------------------------------------------
-3️⃣ RESPONSE FORMAT (STRICT)
+3 RESPONSE FORMAT (STRICT)
 ------------------------------------------------
 
 Always return ONLY valid JSON.
@@ -110,13 +105,17 @@ Success format:
         content: userCode,
       },
     ],
+    response_format: { type: "json_object" },
     model: "llama-3.3-70b-versatile",
-    temperature: 0.2,
+    temperature: 0,
   });
 
-  const parsed = splitResponse(
+  const parsed = JSON.parse(
     chatCompletion.choices[0]?.message?.content || "",
   );
-
+console.log(parsed);
+  if(!validationStructure(parsed)){
+      throw new Error("Invalid structure")
+  }
   return parsed;
 }

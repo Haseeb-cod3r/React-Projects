@@ -2,12 +2,12 @@ import { appContext } from "@/contexts/AppContext";
 import { Loader2 } from "lucide-react";
 import { useContext } from "react";
 
-export default function AIFeedback() {
+export default function AIFeedback({ orientation }) {
   const { loading, feedback, status, message } = useContext(appContext);
 
   return (
     <div
-      className="
+      className={`
         bg-[var(--color-card)] 
         border 
         border-[var(--color-border)] 
@@ -18,7 +18,8 @@ export default function AIFeedback() {
         h-[45%] 
         transition-colors 
         duration-300
-      "
+        ${orientation === "vertical" ? "min-h-[400px]" : ""}
+      `}
     >
       <div className="flex-none mb-4">
         <h2 className="text-xs uppercase tracking-[0.25em] text-[var(--color-primary)] mb-2">
@@ -109,7 +110,6 @@ export default function AIFeedback() {
           ) : (
             <span className="text-[var(--color-muted-foreground)]">
               Waiting for analysis...
-              
             </span>
           )}
         </div>

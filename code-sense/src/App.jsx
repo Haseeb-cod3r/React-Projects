@@ -35,7 +35,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen w-full bg-(--color-background) text-(--color-foreground) transition-colors duration-300 overflow-hidden">
+    <div className="flex flex-col h-screen w-full bg-(--color-background) text-(--color-foreground) transition-colors duration-300">
       <Navbar />
 
       <main className="flex-1 w-full overflow-hidden">
@@ -44,7 +44,11 @@ export default function App() {
           id="main-layout-group"
           className="w-full h-full"
         >
-          <Panel id="left-editor-panel" defaultSize="50%" minSize="30%">
+          <Panel
+            id="left-editor-panel"
+            defaultSize="50%"
+            minSize={orientation === "vertical" ? "0%" : "30%"}
+          >
             <div className="h-full border-r border-(--color-border) p-6 flex flex-col gap-4 overflow-y-auto">
               <div className="flex flex-wrap gap-4">
                 <DropdownMenu>
@@ -132,19 +136,23 @@ export default function App() {
 
           <Separator
             id="main-separator"
-            className={`group w-1.5 ${orientation === "vertical" ? "bg-(--color-primary) hover:bg-(--color-primary)" : "bg-transparent hover:bg-(--color-primary)/10"}  py-1 rounded-2xl   transition-colors cursor-col-resize flex items-center justify-center outline-none`}
+            className={`group  hover:bg-(--color-primary)/10 w-1.5 ${orientation === "vertical" ? "w-full h-1 my-3 border-t-1 border-[var(--color-border)]" : "bg-transparent"}  py-1  active:bg-(--color-primary)/10   transition-colors cursor-col-resize flex items-center justify-center outline-none`}
           >
             <div
-              className={`w-[2px] h-10 rounded-full transition-all ${orientation === "vertical" ? "bg-(--color-border)" : "bg-(--color-primary)"}`}
+              className={`  rounded-full h-10  w-[2px] bg-(--color-primary) transition-all ${orientation === "vertical" ? "w-[30px] h-[2px]" : ""}`}
             />
           </Separator>
-          <Panel id="right-output-panel" defaultSize="50%" minSize="30%">
+          <Panel
+            id="right-output-panel"
+            defaultSize="50%"
+            minSize={orientation === "vertical" ? "0%" : "30%"}
+          >
             <div
               className="h-full p-6 flex 
             flex-col gap-6 overflow-y-auto"
             >
-              <GeneratedCode />
-              <AIFeedback />
+              <GeneratedCode orientation={orientation} />
+              <AIFeedback orientation={orientation} />
             </div>
           </Panel>
         </Group>

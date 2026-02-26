@@ -19,11 +19,11 @@ export default function Navbar() {
   return (
     <div
       className="
-        h-[70px]
         flex
         items-center
         justify-between
         px-8
+        py-4
         border-b
         border-[var(--color-border)]
         bg-[var(--color-background)]

@@ -2,7 +2,7 @@ import { appContext } from "@/contexts/AppContext";
 import { Copy, Check, Loader2 } from "lucide-react";
 import { useContext, useState } from "react";
 
-export default function GeneratedCode() {
+export default function GeneratedCode({orientation}) {
   const { correctedCode, loading } = useContext(appContext);
   const [copied, setCopied] = useState(false);
 
@@ -21,18 +21,19 @@ export default function GeneratedCode() {
 
   return (
     <div
-      className="
-        bg-[var(--color-card)]
-        border
-        border-[var(--color-border)]
-        p-4
-        flex-1
-        rounded-xl
-        transition-colors
-        duration-300
-        h-[45%] 
+     className={`
+        bg-[var(--color-card)] 
+        border 
+        border-[var(--color-border)] 
+        p-4 
+        flex-1 
+        rounded-2xl 
         flex flex-col 
-      "
+        h-[45%] 
+        transition-colors 
+        duration-300
+        ${orientation === "vertical" ? "min-h-[400px]":""}
+      `}
     >
       <div className="flex-none mb-4 w-full">
         <div className="w-full">
