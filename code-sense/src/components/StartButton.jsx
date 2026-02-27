@@ -145,7 +145,7 @@ export default function StartButton() {
             <Loader2 size={20} className="animate-spin" />
           </span>
         ) : (
-          "Start Analyze"
+          "Analyze Code"
         )}
       </button>
 
