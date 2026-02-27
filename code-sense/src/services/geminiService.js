@@ -1,32 +1,36 @@
-import Groq from "groq-sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const groq = new Groq({
-  apiKey: import.meta.env.VITE_GROQ_API_KEY,
-  dangerouslyAllowBrowser: true,
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+
+const model = genAI.getGenerativeModel({
+  model: "gemini-3-flash-preview",
+  generationConfig: {
+    temperature: 0,
+    responseMimeType: "application/json",
+  },
 });
 
-
 export const validationStructure = (obj) => {
- if (!["success", "mismatch"].includes(obj.status)) return false;
+  console.log(obj);
+
+  if (!["success", "mismatch"].includes(obj?.status)) return false;
+
   if (obj.status === "success") {
-    if (!obj.correctedCode) return false;
+    if (typeof obj.correctedCode !== "string") return false;
     if (!obj.feedback) return false;
-    if (!obj.feedback.overview) return false;
+    if (typeof obj.feedback.overview !== "string") return false;
   }
-  if(obj.status === "mismatch"){
-      if(!obj.message) return false
+
+  if (obj.status === "mismatch") {
+    if (typeof obj.message !== "string") return false;
   }
 
   return true;
 };
 
-export async function GroqServices(userCode, lang, framework, feature) {
-  const chatCompletion = await groq.chat.completions.create({
-    messages: [
-      {
-        role: "system",
-        content: `
-You are CodeSense AI — a Senior Software Architect.
+export async function GeminiService(userCode, lang, framework, feature) {
+  const prompt = `
+You are CodeSense AI a Senior Software Architect.
 
 You MUST follow these rules strictly:
 
@@ -55,13 +59,6 @@ Respond differently depending on feature:
 - If Debug:
    • Identify real bugs only
    • Fix them
-   • If no bugs:
-     return:
-     {
-       "status": "success",
-       "message": "No bugs found. The code is logically correct.",
-       "improvements": []
-     }
 
 - If Optimize:
    • Improve performance
@@ -98,24 +95,25 @@ Success format:
   }
 }
 
-`,
-      },
-      {
-        role: "user",
-        content: userCode,
-      },
-    ],
-    response_format: { type: "json_object" },
-    model: "llama-3.3-70b-versatile",
-    temperature: 0,
-  });
+User Code:
+${userCode}
+`;
 
-  const parsed = JSON.parse(
-    chatCompletion.choices[0]?.message?.content || "",
-  );
-console.log(parsed);
-  if(!validationStructure(parsed)){
-      throw new Error("Invalid structure")
+  const result = await model.generateContent(prompt);
+
+  const text = result.response.text();
+
+  let parsed;
+
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    throw new Error("Invalid JSON from Gemini");
   }
+
+  if (!validationStructure(parsed)) {
+    throw new Error("Invalid structure");
+  }
+
   return parsed;
 }

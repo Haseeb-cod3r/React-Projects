@@ -72,7 +72,7 @@ export default function Navbar() {
             max-sm:hidden
           "
         >
-          ● Powered By " llama-3.3-70b-versatile "
+          ● Powered By "Gemini 3 Flash"
         </div>
 
         <DropdownMenu>

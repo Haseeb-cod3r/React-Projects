@@ -1,9 +1,9 @@
 import { appContext } from "@/contexts/AppContext";
-import { GroqServices } from "@/services/groqService";
 import { useMutation } from "@tanstack/react-query";
 import { useContext } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { Loader2 } from "lucide-react";
+import { GeminiService } from "@/services/geminiService";
 
 export default function StartButton() {
   const {
@@ -59,8 +59,7 @@ export default function StartButton() {
   }
 
   const { mutate, isPending } = useMutation({
-    mutationFn: () => GroqServices(userCode, lang, framework, feature),
-
+    mutationFn: () => GeminiService(userCode, lang, framework, feature),
     onMutate: () => {
       setLoading(true);
       setFeedback(null);
@@ -95,11 +94,27 @@ export default function StartButton() {
       }
     },
 
-    onError: (err) => {
-      console.error(err);
+    onError: (error) => {
+      console.error(error);
+      if (error.message.includes("quota") || error.message.includes("429")) {
+        toast.error(
+          "AI analysis limit has been reached please check back shortly.",
+          {
+            style: {
+              background: "var(--color-primary)",
+              color: "white",
+            },
+          },
+        );
+      } else {
+        toast.error("Something went wrong. Please try again.", {
+          style: {
+            background: "var(--color-primary)",
+            color: "white",
+          },
+        });
+      }
       setLoading(false);
-
-      toast.error("Something went wrong. Please try again.");
     },
   });
 

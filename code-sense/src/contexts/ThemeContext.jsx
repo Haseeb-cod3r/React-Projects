@@ -6,9 +6,9 @@ export function ThemeContext({ children }) {
 
   const [theme, setTheme] = useState("Light");
   
+  const themes = ["Midnight", "Forest", "Pastel", "Light", "Dark"];
   useEffect(() => {
     const html = document.documentElement;
-    const themes = ["Midnight", "Forest", "Pastel", "Light", "Dark"];
     if (themes.includes(theme)) {
       html.classList.remove(...themes);
       html.classList.add(theme);

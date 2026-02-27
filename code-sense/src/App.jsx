@@ -46,7 +46,7 @@ export default function App() {
         >
           <Panel
             id="left-editor-panel"
-            defaultSize="50%"
+            defaultSize={orientation === "vertical" ? "100%" : "50%"}
             minSize={orientation === "vertical" ? "0%" : "30%"}
           >
             <div className="h-full border-r border-(--color-border) p-6 flex flex-col gap-4 overflow-y-auto">
@@ -144,7 +144,7 @@ export default function App() {
           </Separator>
           <Panel
             id="right-output-panel"
-            defaultSize="50%"
+            defaultSize={orientation === "vertical" ? "0%" : "50%"}
             minSize={orientation === "vertical" ? "0%" : "30%"}
           >
             <div
